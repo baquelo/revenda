@@ -58,34 +58,39 @@
         /*
           PARCEIROS_COMERCIAIS = 10%
           CENTRAL_BETA = 20%
-          CARGA_TRIBUTÁRIA = 36,8%
+          CARGA_TRIBUTÁRIA = 36,28%
           LOGISTICA = 4,81%
         */
         const partnerCommision = 0.1;
         const centralRemineration = 0.2;
-        const taxBurden = 0.368;
+        const taxBurden = 0.3628;
         const logistics = 0.0481;
 
         const resultValues = [
           {
             label: "10% - Parceiro Comercial",
             value: formatNumber(amount * partnerCommision),
+            tax: false,
           },
           {
             label: "20% - Central Beta",
             value: formatNumber(amount * centralRemineration),
+            tax: false,
           },
           {
-            label: "36,8% - Carga Tributária",
+            label: "36,28% - Carga Tributária",
             value: formatNumber(amount * taxBurden),
+            tax: true,
           },
           {
             label: "4,81% - Logística",
             value: formatNumber(amount * logistics),
+            tax: true,
           },
         ];
 
         let debits = 0;
+        let taxes = 0;
 
         resultValues.forEach((result) => {
           debits += result.value;
