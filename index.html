@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pt">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link href="./css/bootstrap.min.css" rel="stylesheet" />
+
+    <title>Pagamento</title>
+  </head>
+  <body
+    style="height: 100vh"
+    class="bg-secondary d-flex align-items-center justify-content-center"
+  >
+    <div class="card p-3" style="width: 400px">
+      <div class="card-body">
+        <h5>Pagamento</h5>
+
+        <form novalidate="novalidate">
+          <div class="mb-3">
+            <label for="amount" class="form-label">Valor</label>
+            <input
+              type="text"
+              pattern="[0-9]{1,}((,|.)[0-9]{2})?"
+              id="amount"
+              name="amount"
+              class="form-control"
+              required
+            />
+            <div class="invalid-feedback">
+              Informe um valor válido. Ex: 100 , 100,00 ou 100.00
+            </div>
+          </div>
+          <button class="btn btn-primary" type="submit">Enviar</button>
+        </form>
+
+        <div id="results"></div>
+      </div>
+    </div>
+
+    <script src="./js/bootstrap.bundle.min.js"></script>
+    <script>
+      const form = document.querySelector("form");
+      form.classList.add("was-validated");
+
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        if (form.checkValidity()) {
+          const amount = parseFloat(
+            form.elements.amount.value.replace(",", ".")
+          );
+          calculatePercent(amount);
+        }
+      });
+
+      function calculatePercent(amount) {
+        /*
+          PARCEIROS_COMERCIAIS = 10%
+          CENTRAL_BETA = 20%
+          CARGA_TRIBUTÁRIA = 36,8%
+          LOGISTICA = 4,81%
+        */
+        const partnerCommision = 0.1;
+        const centralRemineration = 0.2;
+        const taxBurden = 0.368;
+        const logistics = 0.0481;
+
+        const resultValues = [
+          {
+            label: "10% - Parceiro Comercial",
+            value: formatNumber(amount * partnerCommision),
+          },
+          {
+            label: "20% - Central Beta",
+            value: formatNumber(amount * centralRemineration),
+          },
+          {
+            label: "36,8% - Carga Tributária",
+            value: formatNumber(amount * taxBurden),
+          },
+          {
+            label: "4,81% - Logística",
+            value: formatNumber(amount * logistics),
+          },
+        ];
+
+        let debits = 0;
+
+        resultValues.forEach((result) => {
+          debits += result.value;
+        });
+
+        resultValues.push({
+          label: "Lucro Líquido",
+          value: amount - debits,
+        });
+
+        const results = document.querySelector("#results");
+        results.classList.add("mt-5");
+        results.innerHTML = "";
+
+        const hr = document.createElement("hr");
+        results.appendChild(hr);
+        hr.classList.add("mb-5");
+
+        const h5 = document.createElement("h5");
+        results.appendChild(h5);
+        h5.innerText = "Resultado";
+
+        const ul = document.createElement("ul");
+        results.appendChild(ul);
+        ul.classList.add("list-group");
+
+        let total = 0.0;
+
+        resultValues.forEach((result) => {
+          total += result.value;
+
+          const li = document.createElement("li");
+          ul.appendChild(li);
+          li.innerText = `${result.label}`;
+          const span = document.createElement("span");
+          li.appendChild(span);
+          span.className = "badge bg-primary rounded-pill";
+          span.innerText = `${toCurrency(result.value)}`;
+          li.className =
+            "list-group-item d-flex justify-content-between align-items-center";
+        });
+      }
+
+      function toCurrency(value) {
+        return new Intl.NumberFormat("pt-BR", {
+          style: "currency",
+          currency: "BRL",
+        }).format(value);
+      }
+
+      function formatNumber(value) {
+        const int = Math.trunc(value);
+        let dec = Math.trunc((value - int) * 100);
+
+        if (dec < 10) {
+          dec = `0${dec}`;
+        }
+
+        return parseFloat(`${int}.${dec}`);
+      }
+    </script>
+  </body>
+</html>
